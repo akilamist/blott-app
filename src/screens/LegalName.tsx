@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
-  StatusBar,
   SafeAreaView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,6 +23,12 @@ const LegalName: React.FC = ({navigation}) => {
   const [lastName, setLastName] = useState('');
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
+  const [buttonColor, setButtonColor] = useState('#b6acf2');
+
+  useEffect(() => {
+    // Update button color based on whether both inputs are filled
+    setButtonColor(firstName.trim() !== '' && lastName.trim() !== '' ? colors.primary : '#b6acf2');
+  }, [firstName, lastName]);
 
   const validateName = (name: string): boolean => /^[A-Za-z]{2,}$/.test(name);
 
@@ -61,47 +66,49 @@ const LegalName: React.FC = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled">
-        <View style={styles.content}>
-          <Text style={styles.title}>{Strings.legalNameScreen.title}</Text>
-          <Text style={styles.subtitle}>
-            {Strings.legalNameScreen.subTitle}
-          </Text>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled">
+          <View style={styles.content}>
+            <Text style={styles.title}>{Strings.legalNameScreen.title}</Text>
+            <Text style={styles.subtitle}>
+              {Strings.legalNameScreen.subTitle}
+            </Text>
 
-          <TextInput
-            style={[styles.input, firstNameError ? styles.inputError : null]}
-            placeholder="First name"
-            value={firstName}
-            onChangeText={setFirstName}
-            placeholderTextColor={colors.textSecondary}
-          />
-          {firstNameError ? (
-            <Text style={styles.errorText}>{firstNameError}</Text>
-          ) : null}
+            <TextInput
+              style={[styles.input, firstNameError ? styles.inputError : null]}
+              placeholder="First name"
+              value={firstName}
+              onChangeText={setFirstName}
+              placeholderTextColor={colors.textSecondary}
+            />
+            {firstNameError ? (
+              <Text style={styles.errorText}>{firstNameError}</Text>
+            ) : null}
 
-          <TextInput
-            style={[styles.input, lastNameError ? styles.inputError : null]}
-            placeholder="Last name"
-            value={lastName}
-            onChangeText={setLastName}
-            placeholderTextColor={colors.textSecondary}
-          />
-          {lastNameError ? (
-            <Text style={styles.errorText}>{lastNameError}</Text>
-          ) : null}
-        </View>
+            <TextInput
+              style={[styles.input, lastNameError ? styles.inputError : null]}
+              placeholder="Last name"
+              value={lastName}
+              onChangeText={setLastName}
+              placeholderTextColor={colors.textSecondary}
+            />
+            {lastNameError ? (
+              <Text style={styles.errorText}>{lastNameError}</Text>
+            ) : null}
+          </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Image source={icons.arrowRight} style={styles.buttonIcon} />
-        </TouchableOpacity>
-      </ScrollView>
-      
-    </KeyboardAvoidingView>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: buttonColor }]}
+            onPress={handleSubmit}
+            disabled={buttonColor !== colors.primary}>
+            <Image source={icons.arrowRight} style={styles.buttonIcon} />
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -113,11 +120,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'space-between', // Ensures button is at the bottom
+    justifyContent: 'space-between',
   },
   content: {
     padding: 16,
-    // marginTop: scaledSize(10),
   },
   title: {
     fontSize: 30,
@@ -148,7 +154,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: colors.primary,
     width: 56,
     height: 56,
     borderRadius: 28,
